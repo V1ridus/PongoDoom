@@ -7,7 +7,7 @@ This is a Proof of Concept port of Doom to PongoOS.
 Currently this doesn't support any input, sound, or save files.  
 This port embeds the original shareware version of Doom into the binary, when run will show the title screen and subsequently run some demo gameplay.
 
-![PongoDoomFootage](https://s3.gifyu.com/images/ezgif-2-f840f9ba7fda.gif)
+![PongoDoomFootage](imgs/footage.gif)
 
 # Building/Running
 
