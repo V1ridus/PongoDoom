@@ -1,0 +1,28 @@
+name: macOS
+
+on: 
+    push:
+jobs:
+  build-macos:
+    name: pongo_doom
+    runs-on: macos-latest
+    steps:
+      - 
+       name: Checkout
+       uses: actions/checkout@v2
+      - 
+       name: Build
+       working-directory: .
+       run: |
+         ./make.sh
+      -
+       name: Package Build
+       working-directory: .
+       run: |
+        zip -r pongo_doom.zip pongo_doom
+      - 
+       name: Archive Build Output
+       uses: actions/upload-artifact@v2
+       with:
+         name: pongo_doom
+         path: pongo_doom.zip
