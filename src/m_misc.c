@@ -115,6 +115,10 @@ M_WriteFile
   void*		source,
   int		length )
 {
+    #ifdef PONGO
+    return false;
+    #else
+    
     int		handle;
     int		count;
 	
@@ -130,6 +134,7 @@ M_WriteFile
 	return false;
 		
     return true;
+    #endif
 }
 
 
@@ -307,6 +312,8 @@ char*	defaultfile;
 //
 void M_SaveDefaults (void)
 {
+    #ifndef PONGO
+    
     int		i;
     int		v;
     FILE*	f;
@@ -329,6 +336,7 @@ void M_SaveDefaults (void)
     }
 	
     fclose (f);
+    #endif
 }
 
 
@@ -363,6 +371,8 @@ void M_LoadDefaults (void)
     else
 	defaultfile = basedefault;
     
+    #ifndef PONGO // eugh fscanf
+
     // read the file in, overriding any set defaults
     f = fopen (defaultfile, "r");
     if (f)
@@ -400,6 +410,8 @@ void M_LoadDefaults (void)
 		
 	fclose (f);
     }
+
+    #endif
 }
 
 
@@ -502,6 +514,8 @@ WritePCXfile
 //
 void M_ScreenShot (void)
 {
+    #ifndef PONGO
+
     int		i;
     byte*	linear;
     char	lbmname[12];
@@ -517,6 +531,7 @@ void M_ScreenShot (void)
     {
 	lbmname[4] = i/10 + '0';
 	lbmname[5] = i%10 + '0';
+
 	if (access(lbmname,0) == -1)
 	    break;	// file doesn't exist
     }
@@ -529,6 +544,8 @@ void M_ScreenShot (void)
 		  W_CacheLumpName ("PLAYPAL",PU_CACHE));
 	
     players[consoleplayer].message = "screen shot";
+
+    #endif
 }
 
 

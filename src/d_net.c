@@ -601,6 +601,7 @@ void D_CheckNetGame (void)
 //
 void D_QuitNetGame (void)
 {
+	/*TODO PongoOS
     int             i, j;
 	
     if (debugfile)
@@ -619,6 +620,7 @@ void D_QuitNetGame (void)
 		HSendPacket (j, NCMD_EXIT);
 	I_WaitVBL (1);
     }
+	*/
 }
 
 

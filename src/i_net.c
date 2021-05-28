@@ -50,7 +50,7 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 
 
-
+/*
 // For some odd reason...
 #define ntohl(x) \
         ((unsigned long int)((((unsigned long int)(x) & 0x000000ffU) << 24) | \
@@ -67,21 +67,21 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 void	NetSend (void);
 boolean NetListen (void);
-
+*/
 
 //
 // NETWORKING
 //
-
+/*
 int	DOOMPORT =	(IPPORT_USERRESERVED +0x1d );
 
 int			sendsocket;
 int			insocket;
 
 struct	sockaddr_in	sendaddress[MAXNETNODES];
-
-void	(*netget) (void);
-void	(*netsend) (void);
+*/
+//void	(*netget) (void);
+//void	(*netsend) (void);
 
 
 //
@@ -89,6 +89,7 @@ void	(*netsend) (void);
 //
 int UDPsocket (void)
 {
+    /*
     int	s;
 	
     // allocate a socket
@@ -97,6 +98,8 @@ int UDPsocket (void)
 	I_Error ("can't create socket: %s",strerror(errno));
 		
     return s;
+    */
+   I_Error("Not supported on Pongo");
 }
 
 //
@@ -107,6 +110,8 @@ BindToLocalPort
 ( int	s,
   int	port )
 {
+    //TODO Pongo
+    /*
     int			v;
     struct sockaddr_in	address;
 	
@@ -117,7 +122,8 @@ BindToLocalPort
 			
     v = bind (s, (void *)&address, sizeof(address));
     if (v == -1)
-	I_Error ("BindToPort: bind: %s", strerror(errno));
+	I_Error ("BindToPort: bind: %s", strerror(errno));*/
+    I_Error("BindToPort: Not supported on PongoOS");
 }
 
 
@@ -126,6 +132,7 @@ BindToLocalPort
 //
 void PacketSend (void)
 {
+    /*
     int		c;
     doomdata_t	sw;
 				
@@ -152,6 +159,7 @@ void PacketSend (void)
 	
     //	if (c == -1)
     //		I_Error ("SendPacket error: %s",strerror(errno));
+    */
 }
 
 
@@ -160,6 +168,7 @@ void PacketSend (void)
 //
 void PacketGet (void)
 {
+    /*
     int			i;
     int			c;
     struct sockaddr_in	fromaddress;
@@ -214,13 +223,14 @@ void PacketGet (void)
 	netbuffer->cmds[c].consistancy = ntohs(sw.cmds[c].consistancy);
 	netbuffer->cmds[c].chatchar = sw.cmds[c].chatchar;
 	netbuffer->cmds[c].buttons = sw.cmds[c].buttons;
-    }
+    }*/
 }
 
 
 
 int GetLocalAddress (void)
 {
+    /*
     char		hostname[1024];
     struct hostent*	hostentry;	// host information entry
     int			v;
@@ -235,6 +245,8 @@ int GetLocalAddress (void)
 	I_Error ("GetLocalAddress : gethostbyname: couldn't get local host");
 		
     return *(int *)hostentry->h_addr_list[0];
+    */
+   return -1;
 }
 
 
@@ -253,6 +265,8 @@ void I_InitNetwork (void)
     
     // set up for network
     i = M_CheckParm ("-dup");
+    // PONGO
+    /*
     if (i && i< myargc-1)
     {
 	doomcom->ticdup = myargv[i+1][0]-'0';
@@ -261,25 +275,29 @@ void I_InitNetwork (void)
 	if (doomcom->ticdup > 9)
 	    doomcom->ticdup = 9;
     }
-    else
+    else*/
 	doomcom-> ticdup = 1;
 	
+    // PONGO
+    /*
     if (M_CheckParm ("-extratic"))
 	doomcom-> extratics = 1;
-    else
+    else*/
 	doomcom-> extratics = 0;
 		
+    // PONFO
+    /*
     p = M_CheckParm ("-port");
     if (p && p<myargc-1)
     {
 	DOOMPORT = atoi (myargv[p+1]);
 	printf ("using alternate port %i\n",DOOMPORT);
-    }
+    }*/
     
     // parse network game options,
     //  -net <consoleplayer> <host> <host> ...
-    i = M_CheckParm ("-net");
-    if (!i)
+   // i = M_CheckParm ("-net");
+   // if (!i)
     {
 	// single player game
 	netgame = false;
@@ -290,6 +308,8 @@ void I_InitNetwork (void)
 	return;
     }
 
+    // PONGO, only single player
+    /*
     netsend = PacketSend;
     netget = PacketGet;
     netgame = true;
@@ -328,12 +348,13 @@ void I_InitNetwork (void)
     BindToLocalPort (insocket,htons(DOOMPORT));
     ioctl (insocket, FIONBIO, &trueval);
 
-    sendsocket = UDPsocket ();
+    sendsocket = UDPsocket ();*/
 }
 
 
 void I_NetCmd (void)
 {
+    /*
     if (doomcom->command == CMD_SEND)
     {
 	netsend ();
@@ -344,5 +365,6 @@ void I_NetCmd (void)
     }
     else
 	I_Error ("Bad net cmd: %i\n",doomcom->command);
+    */
 }
 

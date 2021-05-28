@@ -34,7 +34,9 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #ifdef NORMALUNIX
 #include <stdio.h>
 #include <stdlib.h>
+#ifndef PONGO
 #include <unistd.h>
+#endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -79,6 +81,9 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #include "p_setup.h"
 #include "r_local.h"
 
+#ifdef PONGO
+#include "pongo.h"
+#endif
 
 #include "d_main.h"
 
@@ -361,6 +366,7 @@ void D_DoomLoop (void)
     if (demorecording)
 	G_BeginRecording ();
 		
+	#ifndef PONGO
     if (M_CheckParm ("-debugfile"))
     {
 	char    filename[20];
@@ -368,13 +374,14 @@ void D_DoomLoop (void)
 	printf ("debug output to: %s\n",filename);
 	debugfile = fopen (filename,"w");
     }
+	#endif
 	
     I_InitGraphics ();
 
     while (1)
     {
 	// frame syncronous IO operations
-	I_StartFrame ();                
+	I_StartFrame ();              
 	
 	// process one or more tics
 	if (singletics)
@@ -545,6 +552,7 @@ char            title[128];
 //
 // D_AddFile
 //
+
 void D_AddFile (char *file)
 {
     int     numwadfiles;
@@ -580,44 +588,53 @@ void IdentifyVersion (void)
 #ifdef NORMALUNIX
     char *home;
     char *doomwaddir;
+	#ifndef PONGO
     doomwaddir = getenv("DOOMWADDIR");
-    if (!doomwaddir)
+    if (!doomwaddir) {
+		doomwaddir = ".";
+	}
+	#else 
 	doomwaddir = ".";
+	#endif
+
+	unsigned int wad_path_len = strlen(doomwaddir)+1+9+1;
 
     // Commercial.
     doom2wad = malloc(strlen(doomwaddir)+1+9+1);
-    sprintf(doom2wad, "%s/doom2.wad", doomwaddir);
+    snprintf(doom2wad, wad_path_len, "%s/doom2.wad", doomwaddir);
 
     // Retail.
     doomuwad = malloc(strlen(doomwaddir)+1+9+1);
-    sprintf(doomuwad, "%s/doomu.wad", doomwaddir);
+    snprintf(doomuwad, wad_path_len, "%s/doomu.wad", doomwaddir);
     
     // Registered.
     doomwad = malloc(strlen(doomwaddir)+1+8+1);
-    sprintf(doomwad, "%s/doom.wad", doomwaddir);
+    snprintf(doomwad, wad_path_len, "%s/doom.wad", doomwaddir);
     
     // Shareware.
     doom1wad = malloc(strlen(doomwaddir)+1+9+1);
-    sprintf(doom1wad, "%s/doom1.wad", doomwaddir);
+    snprintf(doom1wad, wad_path_len, "%s/doom1.wad", doomwaddir);
 
      // Bug, dear Shawn.
-    // Insufficient malloc, caused spurious realloc errors.
+    // Insufficient malloc, caused spurious realloc errors.*/
     plutoniawad = malloc(strlen(doomwaddir)+1+/*9*/12+1);
-    sprintf(plutoniawad, "%s/plutonia.wad", doomwaddir);
+    snprintf(plutoniawad, strlen(doomwaddir)+1+/*9*/12+1, "%s/plutonia.wad", doomwaddir);
 
     tntwad = malloc(strlen(doomwaddir)+1+9+1);
-    sprintf(tntwad, "%s/tnt.wad", doomwaddir);
+    snprintf(tntwad, wad_path_len, "%s/tnt.wad", doomwaddir);
 
 
     // French stuff.
     doom2fwad = malloc(strlen(doomwaddir)+1+10+1);
-    sprintf(doom2fwad, "%s/doom2f.wad", doomwaddir);
+    snprintf(doom2fwad, strlen(doomwaddir)+1+10+1, "%s/doom2f.wad", doomwaddir);
 
+	#ifndef PONGO
     home = getenv("HOME");
     if (!home)
       I_Error("Please set $HOME to your home directory");
     sprintf(basedefault, "%s/Library/Application support/", home);
-#endif
+	#endif
+	#endif
 
     if (M_CheckParm ("-shdev"))
     {
@@ -660,6 +677,7 @@ void IdentifyVersion (void)
 	return;
     }
 
+    
     if ( !access (doom2fwad,R_OK) )
     {
 	gamemode = commercial;
@@ -712,8 +730,8 @@ void IdentifyVersion (void)
       D_AddFile (doom1wad);
       return;
     }
-
-    printf("Game mode indeterminate.\n");
+    
+	printf("Game mode indeterminate.\n");
     gamemode = indetermined;
 
     // We don't abort. Let's see what the PWAD contains.
@@ -726,6 +744,7 @@ void IdentifyVersion (void)
 //
 void FindResponseFile (void)
 {
+
     int             i;
 #define MAXARGVS        100
 	
@@ -747,7 +766,11 @@ void FindResponseFile (void)
 	    if (!handle)
 	    {
 		printf ("\nNo such response file!");
+		#ifdef PONGO
+		printf(0); // Super ugly hack, we'll crash to get back to pongoterm
+		#else
 		exit(1);
+		#endif
 	    }
 	    printf("Found response file %s!\n",&myargv[i][1]);
 	    fseek (handle,0,SEEK_END);
@@ -807,7 +830,10 @@ void D_DoomMain (void)
 	
     IdentifyVersion ();
 	
+	#ifndef PONGO
     setbuf (stdout, NULL);
+	#endif
+
     modifiedgame = false;
 	
     nomonsters = M_CheckParm ("-nomonsters");
@@ -822,28 +848,28 @@ void D_DoomMain (void)
     switch ( gamemode )
     {
       case retail:
-	sprintf (title,
+	snprintf (title, sizeof(title),
 		 "                         "
 		 "The Ultimate DOOM Startup v%i.%i"
 		 "                           ",
 		 VERSION/100,VERSION%100);
 	break;
       case shareware:
-	sprintf (title,
+	snprintf (title, sizeof(title),
 		 "                            "
 		 "DOOM Shareware Startup v%i.%i"
 		 "                           ",
 		 VERSION/100,VERSION%100);
 	break;
       case registered:
-	sprintf (title,
+	snprintf (title, sizeof(title),
 		 "                            "
 		 "DOOM Registered Startup v%i.%i"
 		 "                           ",
 		 VERSION/100,VERSION%100);
 	break;
       case commercial:
-	sprintf (title,
+	snprintf (title, sizeof(title),
 		 "                         "
 		 "DOOM 2: Hell on Earth v%i.%i"
 		 "                           ",
@@ -866,7 +892,7 @@ void D_DoomMain (void)
 	break;
 */
       default:
-	sprintf (title,
+	snprintf (title, sizeof(title),
 		 "                     "
 		 "Public DOOM - v%i.%i"
 		 "                           ",
@@ -882,7 +908,11 @@ void D_DoomMain (void)
     if (M_CheckParm("-cdrom"))
     {
 	printf(D_CDROM);
+
+	#ifndef PONGO
 	mkdir("c:\\doomdata",0);
+	#endif
+
 	strcpy (basedefault,"c:/doomdata/default.cfg");
     }	
     
@@ -922,7 +952,7 @@ void D_DoomMain (void)
 	  case shareware:
 	  case retail:
 	  case registered:
-	    sprintf (file,"~"DEVMAPS"E%cM%c.wad",
+	    snprintf (file, sizeof(file), "~"DEVMAPS"E%cM%c.wad",
 		     myargv[p+1][0], myargv[p+2][0]);
 	    printf("Warping to Episode %s, Map %s.\n",
 		   myargv[p+1],myargv[p+2]);
@@ -932,9 +962,9 @@ void D_DoomMain (void)
 	  default:
 	    p = atoi (myargv[p+1]);
 	    if (p<10)
-	      sprintf (file,"~"DEVMAPS"cdata/map0%i.wad", p);
+	      snprintf (file, sizeof(file), "~"DEVMAPS"cdata/map0%i.wad", p);
 	    else
-	      sprintf (file,"~"DEVMAPS"cdata/map%i.wad", p);
+	      snprintf (file, sizeof(file), "~"DEVMAPS"cdata/map%i.wad", p);
 	    break;
 	}
 	D_AddFile (file);
@@ -957,7 +987,7 @@ void D_DoomMain (void)
 
     if (p && p < myargc-1)
     {
-	sprintf (file,"%s.lmp", myargv[p+1]);
+	snprintf (file, sizeof(file), "%s.lmp", myargv[p+1]);
 	D_AddFile (file);
 	printf("Playing demo %s.lmp.\n",myargv[p+1]);
     }
@@ -1023,6 +1053,7 @@ void D_DoomMain (void)
     Z_Init ();
 
     printf ("W_Init: Init WADfiles.\n");
+
     W_InitMultipleFiles (wadfiles);
     
 
@@ -1062,7 +1093,9 @@ void D_DoomMain (void)
 	    "                      press enter to continue\n"
 	    "===========================================================================\n"
 	    );
+	#ifndef PONGO
 	getchar ();
+	#endif
     }
 	
 
@@ -1156,9 +1189,9 @@ void D_DoomMain (void)
     if (p && p < myargc-1)
     {
 	if (M_CheckParm("-cdrom"))
-	    sprintf(file, "c:\\doomdata\\"SAVEGAMENAME"%c.dsg",myargv[p+1][0]);
+	    snprintf(file, sizeof(file), "c:\\doomdata\\"SAVEGAMENAME"%c.dsg",myargv[p+1][0]);
 	else
-	    sprintf(file, SAVEGAMENAME"%c.dsg",myargv[p+1][0]);
+	    snprintf(file, sizeof(file), SAVEGAMENAME"%c.dsg",myargv[p+1][0]);
 	G_LoadGame (file);
     }
 	

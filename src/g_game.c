@@ -674,7 +674,7 @@ void G_Ticker (void)
 	    {
 		static char turbomessage[80];
 		extern char *player_names[4];
-		sprintf (turbomessage, "%s is turbo!",player_names[i]);
+		snprintf (turbomessage, sizeof(turbomessage), "%s is turbo!",player_names[i]);
 		players[consoleplayer].message = turbomessage;
 	    }
 			
@@ -1212,7 +1212,7 @@ void G_DoLoadGame (void)
     
     // skip the description field 
     memset (vcheck,0,sizeof(vcheck)); 
-    sprintf (vcheck,"version %i",VERSION); 
+    snprintf (vcheck, sizeof(vcheck), "version %i",VERSION); 
     if (strcmp (save_p, vcheck)) 
 	return;				// bad version 
     save_p += VERSIONSIZE; 
@@ -1276,9 +1276,9 @@ void G_DoSaveGame (void)
     int		i; 
 	
     if (M_CheckParm("-cdrom"))
-	sprintf(name,"c:\\doomdata\\"SAVEGAMENAME"%d.dsg",savegameslot);
+	snprintf(name, sizeof(name), "c:\\doomdata\\"SAVEGAMENAME"%d.dsg",savegameslot);
     else
-	sprintf (name,SAVEGAMENAME"%d.dsg",savegameslot); 
+	snprintf (name, sizeof(name), SAVEGAMENAME"%d.dsg",savegameslot); 
     description = savedescription; 
 	 
     save_p = savebuffer = screens[1]+0x4000; 
@@ -1286,7 +1286,7 @@ void G_DoSaveGame (void)
     memcpy (save_p, description, SAVESTRINGSIZE); 
     save_p += SAVESTRINGSIZE; 
     memset (name2,0,sizeof(name2)); 
-    sprintf (name2,"version %i",VERSION); 
+    snprintf (name2, sizeof(name2), "version %i",VERSION); 
     memcpy (save_p, name2, VERSIONSIZE); 
     save_p += VERSIONSIZE; 
 	 
@@ -1529,6 +1529,8 @@ void G_WriteDemoTiccmd (ticcmd_t* cmd)
 // 
 void G_RecordDemo (char* name) 
 { 
+    // TODO PongoOS
+    /*
     int             i; 
     int				maxsize;
 	
@@ -1542,7 +1544,7 @@ void G_RecordDemo (char* name)
     demobuffer = Z_Malloc (maxsize,PU_STATIC,NULL); 
     demoend = demobuffer + maxsize;
 	
-    demorecording = true; 
+    demorecording = true; */
 } 
  
  

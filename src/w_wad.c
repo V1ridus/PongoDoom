@@ -49,7 +49,8 @@ rcsid[] = "$Id: w_wad.c,v 1.5 1997/02/03 16:47:57 b1 Exp $";
 #include "w_wad.h"
 
 
-
+#include <sys/types.h>
+#include <sys/stat.h>
 
 
 
@@ -139,7 +140,7 @@ char*			reloadname;
 
 
 void W_AddFile (char *filename)
-{
+{    
     wadinfo_t		header;
     lumpinfo_t*		lump_p;
     unsigned		i;
@@ -153,6 +154,7 @@ void W_AddFile (char *filename)
     // open the file and add to directory
 
     // handle reload indicator.
+
     if (filename[0] == '~')
     {
 	filename++;
@@ -182,10 +184,10 @@ void W_AddFile (char *filename)
     {
 	// WAD file
 	read (handle, &header, sizeof(header));
-	if (strncmp(header.identification,"IWAD",4))
+	if (strncmp(header.identification,"IWAD", 4))
 	{
 	    // Homebrew levels?
-	    if (strncmp(header.identification,"PWAD",4))
+	    if (strncmp(header.identification,"PWAD", 4))
 	    {
 		I_Error ("Wad file %s doesn't have IWAD "
 			 "or PWAD id\n", filename);
@@ -223,6 +225,7 @@ void W_AddFile (char *filename)
 	
     if (reloadname)
 	close (handle);
+    
 }
 
 
@@ -299,8 +302,9 @@ void W_InitMultipleFiles (char** filenames)
     // will be realloced as lumps are added
     lumpinfo = malloc(1);	
 
-    for ( ; *filenames ; filenames++)
-	W_AddFile (*filenames);
+    for ( ; *filenames ; filenames++) {
+	    W_AddFile(*filenames);
+    }
 
     if (!numlumps)
 	I_Error ("W_InitFiles: no files found");
@@ -432,7 +436,7 @@ void
 W_ReadLump
 ( int		lump,
   void*		dest )
-{
+{   
     int		c;
     lumpinfo_t*	l;
     int		handle;
@@ -463,7 +467,7 @@ W_ReadLump
     if (l->handle == -1)
 	close (handle);
 		
-    // ??? I_EndRead ();
+    // ??? I_EndRead ();*/
 }
 
 

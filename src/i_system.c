@@ -30,7 +30,11 @@ rcsid[] = "$Id: m_bbox.c,v 1.1 1997/02/03 22:45:10 b1 Exp $";
 
 #include <stdarg.h>
 #include <sys/time.h>
-#include <unistd.h>
+
+#ifndef PONGO
+#else
+#include "pongo.h"
+#endif
 
 #include "doomdef.h"
 #include "m_misc.h"
@@ -94,11 +98,28 @@ int  I_GetTime (void)
     int			newtics;
     static int		basetime=0;
   
+  #ifndef PONGO
+
     gettimeofday(&tp, &tzp);
     if (!basetime)
 	basetime = tp.tv_sec;
     newtics = (tp.tv_sec-basetime)*TICRATE + tp.tv_usec*TICRATE/1000000;
     return newtics;
+#else
+
+    uint64_t cur_ticks = get_ticks();
+    uint64_t cur_micro_ticks = (cur_ticks * 100 )/ 2407; // TODO PONGO, check this
+    uint32_t secs = cur_micro_ticks / 1000000LLU;
+    uint32_t micro_secs = cur_micro_ticks % 1000000LLU;
+    if (!basetime) {
+        basetime = secs;
+    }
+
+    newtics = (secs - basetime)*TICRATE + micro_secs*TICRATE/1000000;
+
+    return newtics;
+#endif
+
 }
 
 
@@ -123,7 +144,11 @@ void I_Quit (void)
     I_ShutdownMusic();
     M_SaveDefaults ();
     I_ShutdownGraphics();
-    exit(0);
+    #ifndef PONGO
+        exit(0); 
+    #else 
+        printf(0); // Hack to crash back to pongoterm
+    #endif 
 }
 
 void I_WaitVBL(int count)
@@ -162,18 +187,30 @@ byte*	I_AllocLow(int length)
 //
 extern boolean demorecording;
 
-void I_Error (char *error, ...)
+void I_Error (char *fmt, ...)
 {
-    va_list	argptr;
+    //va_list	args;
+
+    printf("Error: ");
+
+    // Log message
+    //printf("%s", fmt);
+    va_list args;
+    va_start(args, fmt);
+    vprintf(fmt,args); 
+    va_end(args); 
+    printf("\n");
 
     // Message first.
-    va_start (argptr,error);
-    fprintf (stderr, "Error: ");
-    vfprintf (stderr,error,argptr);
-    fprintf (stderr, "\n");
-    va_end (argptr);
+    //va_start (argptr,error);
+    //fprintf (stderr, "Error: ");
+    //vfprintf (stderr,error,argptr);
+    //fprintf (stderr, "\n");
+    //va_end (argptr);
 
-    fflush( stderr );
+    //fflush( stderr );
+
+
 
     // Shutdown. Here might be other errors.
     if (demorecording)
@@ -182,5 +219,5 @@ void I_Error (char *error, ...)
     D_QuitNetGame ();
     I_ShutdownGraphics();
     
-    exit(-1);
+    //exit(-1); TODO Pongo
 }

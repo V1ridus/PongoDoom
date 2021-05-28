@@ -164,7 +164,7 @@ void S_Init
 {  
   int		i;
 
-  fprintf( stderr, "S_Init: default sfx volume %d\n", sfxVolume);
+  printf("S_Init: default sfx volume %d\n", sfxVolume); //PongoMod
 
   // Whatever these did with DMX, these are rather dummies now.
   I_SetChannels();
@@ -671,7 +671,7 @@ S_ChangeMusic
     // get lumpnum if neccessary
     if (!music->lumpnum)
     {
-	sprintf(namebuf, "d_%s", music->name);
+	snprintf(namebuf, sizeof(namebuf), "d_%s", music->name);
 	music->lumpnum = W_GetNumForName(namebuf);
     }
 
