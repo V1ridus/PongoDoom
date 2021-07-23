@@ -16,7 +16,7 @@ This port embeds the original shareware version of Doom into the binary, when ru
 ## MacOS
 - Run the `make.sh` script which should produce a `pongo_doom` mach-o kext.
 - Build PongoOS  and run via checkra1n
-    - This was built using [this](https://github.com/checkra1n/pongoOS/commit/a6e41dbd779b133d54f92c475ee4abbd415a3736) pongoOS commit. Future builds will probably break the current implementation.
+    - pongo doom was run/tested on a build from this commit of pongoOS: https://github.com/checkra1n/pongoOS/commit/a6e41dbd779b133d54f92c475ee4abbd415a3736). Future pongoOS builds will probably break the current implementation.
     - checkra1n can be downloaded [here](https://checkra.in/).
     - Run pongo via checkra1n on a compatible iOS device: `/Applications/checkra1n.app/Contents/MacOS/checkra1n -k build/Pongo.bin`
 - Load the `pongo_doom` module, the pongoOS project has a `module_load.py` script to do this. `python3 module_load.py pongo_doom`
